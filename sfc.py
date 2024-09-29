@@ -3,31 +3,11 @@ import numpy as np
 import pandas as pd
 
 
-def generate_differential_equations(godley_table, t: sp.Symbol):
-    # Create a dictionary to store the stock variables for each sector
-    stocks = {}
-
-    # Create symbolic stock variables for each sector (e.g., Household Savings, Government Debt)
-    for sector in godley_table.columns:
-        stocks[sector] = sp.Function(f"S_{sector}")(t)
-
-    # List to hold differential equations
-    diff_eqs = {}
-
-    # For each sector, sum the flows (rows) and generate the differential equation for the stock
-    for sector in godley_table.columns:
-        net_flow = sum(godley_table[sector])  # Sum the flows for the sector
-        diff_eq = sp.Eq(
-            stocks[sector].diff(t), net_flow
-        )  # Create the differential equation
-        diff_eqs[sector] = diff_eq
-
-    return diff_eqs
-
-
 def solve(
     godley_table, params_symbols, initial_values, params, t0=0, t_end=500, dt=0.1
 ) -> pd.DataFrame:
+    """Solve the stock-flow consistent model using Euler's method."""
+    
     times = np.arange(t0, t_end, dt)  # Create an array of time steps
     num_steps = len(times)
 
@@ -59,6 +39,28 @@ def solve(
             )
 
     return pd.DataFrame(stock_values, index=times)
+
+
+def generate_differential_equations(godley_table, t: sp.Symbol):
+    # Create a dictionary to store the stock variables for each sector
+    stocks = {}
+
+    # Create symbolic stock variables for each sector (e.g., Household Savings, Government Debt)
+    for sector in godley_table.columns:
+        stocks[sector] = sp.Function(f"S_{sector}")(t)
+
+    # List to hold differential equations
+    diff_eqs = {}
+
+    # For each sector, sum the flows (rows) and generate the differential equation for the stock
+    for sector in godley_table.columns:
+        net_flow = sum(godley_table[sector])  # Sum the flows for the sector
+        diff_eq = sp.Eq(
+            stocks[sector].diff(t), net_flow
+        )  # Create the differential equation
+        diff_eqs[sector] = diff_eq
+
+    return diff_eqs
 
 
 def create_derivative_functions(diff_eqs, params_symbols: list):
