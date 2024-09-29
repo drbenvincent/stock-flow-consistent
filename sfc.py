@@ -25,14 +25,16 @@ def generate_differential_equations(godley_table, t: sp.Symbol):
     return diff_eqs
 
 
-def euler_simulation(
-    diff_eqs, params_symbols, initial_values, params, t0=0, t_end=500, dt=0.1
+def solve(
+    godley_table, params_symbols, initial_values, params, t0=0, t_end=500, dt=0.1
 ) -> pd.DataFrame:
     times = np.arange(t0, t_end, dt)  # Create an array of time steps
     num_steps = len(times)
 
     t = sp.symbols("t")  # time
 
+    # Generate the differential equations - basically column sums of the godley table
+    diff_eqs = generate_differential_equations(godley_table, t)
     # Generate the derivative functions
     derivatives = create_derivative_functions(diff_eqs, params_symbols)
 
@@ -80,5 +82,4 @@ def extract_symbols_from_flows(flows) -> list[sp.Symbol]:
         if expr != 0:  # Only extract symbols if the expression is non-zero
             all_symbols.update(expr.free_symbols)
 
-    # Convert the set to a list
     return list(all_symbols)
