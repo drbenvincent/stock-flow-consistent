@@ -1,0 +1,10 @@
+name: stock-flow-consistent
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel
+  - matplotlib
+  - numpy
+  - pandas
+  - python=3.12
+  - sympy
