@@ -67,3 +67,18 @@ def create_derivative_functions(diff_eqs, params_symbols: list):
         # Convert the symbolic expression into a callable Python function
         derivatives[sector] = sp.lambdify(params_symbols, rhs)
     return derivatives
+
+
+def extract_symbols_from_flows(flows) -> list[sp.Symbol]:
+    """Extract all sympy symbols from the flows, ignoring signs and handling zeros"""
+    all_symbols = set()
+
+    # Extract all equations from the flows and flatten the list
+    equations = [expr for flow in flows for expr in flow[1]]
+
+    for expr in equations:
+        if expr != 0:  # Only extract symbols if the expression is non-zero
+            all_symbols.update(expr.free_symbols)
+
+    # Convert the set to a list
+    return list(all_symbols)
